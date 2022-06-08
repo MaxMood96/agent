@@ -3,14 +3,16 @@ GEM
   specs:
     arr-pm (0.0.10)
       cabin (> 0)
-    aws-sdk (2.11.152)
-      aws-sdk-resources (= 2.11.152)
-    aws-sdk-core (2.11.152)
+    aws-eventstream (1.2.0)
+    aws-sdk (2.11.632)
+      aws-sdk-resources (= 2.11.632)
+    aws-sdk-core (2.11.632)
       aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.11.152)
-      aws-sdk-core (= 2.11.152)
-    aws-sigv4 (1.0.3)
+    aws-sdk-resources (2.11.632)
+      aws-sdk-core (= 2.11.632)
+    aws-sigv4 (1.5.0)
+      aws-eventstream (~> 1, >= 1.0.2)
     backports (3.11.4)
     cabin (0.9.0)
     childprocess (0.9.0)
@@ -34,7 +36,7 @@ GEM
       stud
     insist (1.0.0)
     io-like (0.3.0)
-    jmespath (1.4.0)
+    jmespath (1.6.1)
     json (1.8.6)
     mustache (0.99.8)
     pleaserun (0.0.30)
@@ -58,4 +60,4 @@ DEPENDENCIES
   fpm
 
 BUNDLED WITH
-   1.16.5
+   1.17.3
