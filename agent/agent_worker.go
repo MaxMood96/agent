@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -506,15 +507,27 @@ func (a *AgentWorker) RunJob(ctx context.Context, acceptResponse *api.Job, ignor
 	a.setBusy(acceptResponse.ID)
 	defer a.setIdle()
 
+	priorityLabel := strconv.Itoa(acceptResponse.Priority)
+	queueLabel := acceptResponse.Env["BUILDKITE_AGENT_META_DATA_QUEUE"]
+
+	// Legacy unlabelled counters; kept incrementing in lockstep with the
+	// labelled counters below so existing scrape consumers see no shape change.
 	jobsStarted.Inc()
 	defer jobsEnded.Inc()
+
+	jobsStartedWithLabels.WithLabelValues(priorityLabel, queueLabel).Inc()
+	defer jobsEndedWithLabels.WithLabelValues(priorityLabel, queueLabel).Inc()
+
+	running := jobsRunning.WithLabelValues(priorityLabel, queueLabel)
+	running.Inc()
+	defer running.Dec()
 
 	jobMetricsScope := a.metrics.With(metrics.Tags{
 		"pipeline": acceptResponse.Env["BUILDKITE_PIPELINE_SLUG"],
 		"org":      acceptResponse.Env["BUILDKITE_ORGANIZATION_SLUG"],
 		"branch":   acceptResponse.Env["BUILDKITE_BRANCH"],
 		"source":   acceptResponse.Env["BUILDKITE_SOURCE"],
-		"queue":    acceptResponse.Env["BUILDKITE_AGENT_META_DATA_QUEUE"],
+		"queue":    queueLabel,
 	})
 
 	// Now that we've got a job to do, we can start it.
